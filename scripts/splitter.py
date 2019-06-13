@@ -41,7 +41,7 @@ def makeNext(data, stop):
 
 
 # enter name of file that contains the series of bricks
-with open("../tools_pandas.ipynb") as json_file:
+with open("../bash_basics.ipynb") as json_file:
     data = json.load(json_file)
     stop = False
 

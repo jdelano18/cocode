@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 def getNotebooks(rootdir):
 	''' get all the notebooks in the rootdir '''
@@ -46,8 +47,8 @@ def updateNotebook(rootdir, filename):
 		for cell in data["cells"]:
 			updateCell(cell)
 
-	with open(rootdir+filename, 'w') as outfile:
-		json.dump(data, outfile)
+	return data
+
 
 def updateCell(cell):
 	''' replace markdown cells with the keyword with a new markdown cell '''
@@ -83,9 +84,32 @@ def updateCell(cell):
 			''']
 
 # here's the code
-rootdir = "../inprogress/"
+try:
+	dir_to_convert = sys.argv[1]
+	try:
+		dir_to_dump_to = sys.argv[2]
+	except IndexError:
+		print(f"WARNING: You didn't enter a dir_to_dump_to. By default, it is now {dir_to_convert}")
+		dir_to_dump_to = dir_to_convert
+except IndexError:
+	print("WARNING: You didn't enter a dir_to_convert or dir_to_dump_to. By default, both are now ../inprogress/")
+	dir_to_convert = dir_to_dump_to = "../inprogress/"
 
-files = getNotebooks(rootdir)
+## FORMAT CHECK
+if dir_to_dump_to[-1] != '/':
+	dir_to_dump_to += '/'
 
-for file in files:
-	updateNotebook(rootdir, file)
+try:
+	files = getNotebooks(dir_to_convert)
+except FileNotFoundError:
+	print(f"ERROR: The dir_to_convert  {dir_to_convert}  doesn't exist")
+	sys.exit()
+
+for filename in files:
+	data = updateNotebook(dir_to_convert, filename)
+	try:
+		with open(dir_to_dump_to+filename, 'w') as outfile:
+			json.dump(data, outfile)
+	except FileNotFoundError:
+		print(f"ERROR: The dir_to_dump_to {dir_to_dump_to} doesn't exist")
+		break

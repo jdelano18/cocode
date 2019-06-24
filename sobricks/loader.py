@@ -1,7 +1,7 @@
 import boto3
 s3 = boto3.client('s3',
-        aws_access_key_id='AKIAJASWIV6JUSYB2XVQ',
-        aws_secret_access_key= '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')
+        aws_access_key_id='',
+        aws_secret_access_key= '')
 bucket_name = 'so-bricks'
 
 import os

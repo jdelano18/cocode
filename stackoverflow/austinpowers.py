@@ -42,12 +42,11 @@ def clean_n_write(row):
 
 
 df = pd.read_csv(file, low_memory = False)
-with open('so-error-table.csv', 'w') as f:
-    f.write('File Id \n')
+# only do this once
+# with open('so-error-table.csv', 'w') as f:
+#    f.write('File Id \n')
 
 for i, row in df.iterrows():
-    if i == 100:
-        break
     try:
         clean_n_write(row)
     except:

@@ -29,8 +29,8 @@ def updateNotebook(rootdir, filename, height):
 
 	with open(rootdir+filename) as json_file:
 		data = json.load(json_file)
-
 		title, description = getInfo(data["cells"][0])
+		# TODO: make the heigh px dynamic to reflect the len(title)
 
 		# add new title and description
 		html = [''' <div>

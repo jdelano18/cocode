@@ -98,7 +98,7 @@ except IndexError:
 if dir_to_dump_to[-1] != '/':
 	dir_to_dump_to += '/'
 # Making the format of stack overflow bricks look better
-if 'sobricks' in rootdir:
+if 'sobricks' in dir_to_convert:
 	height = '75'
 else:
 	height = '150'

@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import sys
+import re
 
 try:
     file = sys.argv[1]
@@ -16,16 +17,40 @@ def convert(ID, title, tags, url, question, answer, questioner, answerer, qlink,
         data['cells'][0]['source'][3] = 'tags: "'+tags+'"\n'
         data['cells'][0]['source'][4] = 'URL: '+url+'\n'
 
-        data['cells'][2]['source'] = question
-        data['cells'][4]['source'] = answer
+        q = update_markdown(data, question, 2)
+        a = update_markdown(data, answer, q+2)
+        # data['cells'][2]['source'] = question
+        # data['cells'][4]['source'] = answer
 
-        data['cells'][6]['source'][0] = data['cells'][6]['source'][0].replace(
+        data['cells'][a+2]['source'][0] = data['cells'][a+2]['source'][0].replace(
             'answerer&', answerer).replace('questioner&', questioner).replace(
             'qlink&', qlink).replace('alink&', alink)
-        data['cells'][7]['source'][0] = data['cells'][7]['source'][0].replace(
+        data['cells'][a+3]['source'][0] = data['cells'][a+3]['source'][0].replace(
             'answerer&', answerer).replace('questioner&', questioner).replace('orig&', url)
 
         dump_to_file(data, ID)
+
+def update_markdown(data, content, i):
+    splitted = re.split('<pre><code>|</code></pre>',content)
+
+    for new_index, snippet in zip(range(i, i+len(splitted)), splitted):
+        cell = {"metadata" : {}}
+        if '<p>' in snippet:
+            cell['cell_type'] = "markdown"
+        else:
+            cell["cell_type"] = "code"
+            cell['execution_count'] : null
+            cell['outputs'] : []
+
+        cell['source'] = snippet
+        data['cells'].insert(new_index, cell)
+
+    print('------------------------------')
+    print(i+len(splitted))
+    print('------------------------------')
+
+    return i+len(splitted)
+
 
 def dump_to_file(data, ID):
     with open ('../sobricks/'+str(ID)+'.ipynb', 'w') as outfile:
@@ -42,15 +67,14 @@ def clean_n_write(row):
 
 
 df = pd.read_csv(file, low_memory = False)
-with open('so-error-table.csv', 'w') as f:
-    f.write('File Id \n')
-
 for i, row in df.iterrows():
-    if i == 100:
+    if i == 10:
         break
+    print(row['PostId'])
     try:
         clean_n_write(row)
     except:
-        print("something went wrong with row "+str(i))
+        #print(str(row['PostId']))
+        # error table of Id's
         with open('so-error-table.csv','a') as fd:
             fd.write(str(row['PostId'])+'\n')

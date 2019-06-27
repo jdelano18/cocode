@@ -24,8 +24,9 @@ def getInfo(cell):
 	return info
 
 
-def updateNotebook(rootdir, filename):
+def updateNotebook(rootdir, filename, height):
 	''' update 1 notebook with title and description and new cells '''
+
 	with open(rootdir+filename) as json_file:
 		data = json.load(json_file)
 
@@ -34,7 +35,7 @@ def updateNotebook(rootdir, filename):
 		# add new title and description
 		html = [''' <div>
     	<img src="./coco.png" style="float: left;height: 55px">
-    	<div style="height: 150px;text-align: center; padding-top:5px">
+    	<div style="height: '''+height+'''px;text-align: center; padding-top:5px">
         <h1>
       	'''+ title + '''
         </h1>
@@ -50,38 +51,36 @@ def updateNotebook(rootdir, filename):
 	return data
 
 
+def getHeader(word):
+	return [''' <div style="height:40px">
+<div style="width:100%; text-align:center; border-bottom: 1px solid #000; line-height:0.1em; margin:40px 0 20px;">
+<span style="background:#fff; padding:0 10px; font-size:25px; font-family: 'Open Sans', sans-serif;">
+'''+word+'''
+</span>
+</div>
+</div>
+	''']
+
 def updateCell(cell):
 	''' replace markdown cells with the keyword with a new markdown cell '''
 	if cell['cell_type'] == 'markdown':
 		if '# Key Code&' in cell['source']:
-			cell['source'] = [''' <div style="height:40px">
-		<div style="width:100%; text-align:center; border-bottom: 1px solid #000; line-height:0.1em; margin:40px 0 20px;">
-    	<span style="background:#fff; padding:0 10px; font-size:25px; font-family: 'Open Sans', sans-serif;">
-        Key Code
-    	</span>
-		</div>
-		</div>
-			''']
+			cell['source'] = getHeader('Key Code')
 
 		if '# Example&' in cell['source']:
-			cell['source'] = [''' <div style="height:40px">
-		<div style="width:100%; text-align:center; border-bottom: 1px solid #000; line-height:0.1em; margin:40px 0 20px;">
-    	<span style="background:#fff; padding:0 10px; font-size:25px; font-family: 'Open Sans', sans-serif;">
-        Example
-    	</span>
-		</div>
-		</div>
-			''']
+			cell['source'] = getHeader('Example')
 
 		if '# Learn More&' in cell['source']:
-			cell['source'] = [''' <div style="height:40px">
-		<div style="width:100%; text-align:center; border-bottom: 1px solid #000; line-height:0.1em; margin:40px 0 20px;">
-    	<span style="background:#fff; padding:0 10px; font-size:25px; font-family: 'Open Sans', sans-serif;">
-        Learn More
-    	</span>
-		</div>
-		</div>
-			''']
+			cell['source'] = getHeader('Learn More')
+
+		if '# Question&' in cell['source']:
+			cell['source'] = getHeader('Question')
+
+		if '# Answer&' in cell['source']:
+			cell['source'] = getHeader('Answer')
+
+		if '# Attribution&' in cell['source']:
+			cell['source'] = getHeader('Attribution')
 
 # here's the code
 try:
@@ -98,6 +97,11 @@ except IndexError:
 ## FORMAT CHECK
 if dir_to_dump_to[-1] != '/':
 	dir_to_dump_to += '/'
+# Making the format of stack overflow bricks look better
+if 'sobricks' in rootdir:
+	height = '75'
+else:
+	height = '150'
 
 try:
 	files = getNotebooks(dir_to_convert)
@@ -106,7 +110,7 @@ except FileNotFoundError:
 	sys.exit()
 
 for filename in files:
-	data = updateNotebook(dir_to_convert, filename)
+	data = updateNotebook(dir_to_convert, filename, height)
 	try:
 		with open(dir_to_dump_to+filename, 'w') as outfile:
 			json.dump(data, outfile)
